@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require "rbs_rails"
+require "rbs_rails/cli"
+
+exit RbsRails::CLI.new().run(ARGV)
+

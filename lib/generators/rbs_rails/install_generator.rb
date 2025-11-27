@@ -12,6 +12,9 @@ module RbsRails
             # default: nil
             #
             # task.ignore_model_if = -> (klass) { klass == MyClass }
+            #
+            # Alternatively, you can use a configuration file (.rbs_rails.rb or config/rbs_rails.rb)
+            # See README for more details.
 
             # If you want to change the rake task namespace, comment in it.
             # default: :rbs_rails
@@ -20,6 +23,8 @@ module RbsRails
             # If you want to change where RBS Rails writes RBSs into, comment in it.
             # default: Rails.root / 'sig/rbs_rails'
             # task.signature_root_dir = Rails.root / 'my_sig/rbs_rails'
+            #
+            # Alternatively, you can set this in a configuration file.
           end
         rescue LoadError
           # failed to load rbs_rails. Skip to load rbs_rails tasks.
