@@ -1,3 +1,5 @@
+require 'set'
+
 module RbsRails
   module ActiveRecord
 
@@ -368,10 +370,14 @@ module RbsRails
       private def enum_instance_methods #: String
         # @type var methods: Array[String]
         methods = []
+        # @type var seen_methods: Set[String]
+        seen_methods = Set.new
 
         # Try to use hook-based enum definitions first (from upstream)
         if klass.respond_to?(:enum_definitions) && klass.enum_definitions.any?
           klass.enum_definitions.each do |name, method_name|
+            next if seen_methods.include?(method_name)
+            seen_methods.add(method_name)
             methods << "def #{method_name}!: () -> bool"
             methods << "def #{method_name}?: () -> bool"
           end
@@ -383,6 +389,8 @@ module RbsRails
 
               values.each do |label, value|
                 value_method_name = enum_method_name(hash, name, label)
+                next if seen_methods.include?(value_method_name)
+                seen_methods.add(value_method_name)
                 methods << "def #{value_method_name}!: () -> bool"
                 methods << "def #{value_method_name}?: () -> bool"
               end
@@ -397,6 +405,8 @@ module RbsRails
       private def enum_class_methods(singleton:) #: String
         # @type var methods: Array[String]
         methods = []
+        # @type var seen_methods: Set[String]
+        seen_methods = Set.new
 
         # Try to use hook-based enum definitions first (from upstream)
         if klass.respond_to?(:enum_definitions) && klass.enum_definitions.any?
@@ -405,6 +415,8 @@ module RbsRails
             methods << "def #{singleton ? 'self.' : ''}#{name.to_s.pluralize}: () -> ::ActiveSupport::HashWithIndifferentAccess[::String, #{class_name}]"
           end
           klass.enum_definitions.each do |_, method_name|
+            next if seen_methods.include?(method_name)
+            seen_methods.add(method_name)
             methods << "def #{singleton ? 'self.' : ''}#{method_name}: () -> #{relation_class_name}"
             methods << "def #{singleton ? 'self.' : ''}not_#{method_name}: () -> #{relation_class_name}"
           end
@@ -425,6 +437,8 @@ module RbsRails
 
               values.each do |label, value|
                 value_method_name = enum_method_name(hash, name, label)
+                next if seen_methods.include?(value_method_name)
+                seen_methods.add(value_method_name)
                 methods << "def #{singleton ? 'self.' : ''}#{value_method_name}: () -> #{relation_class_name}"
               end
             end
@@ -795,6 +809,9 @@ module RbsRails
       private def enum_method_name(hash, name, label)
         enum_prefix = hash[:_prefix]
         enum_suffix = hash[:_suffix]
+
+        prefix = ""  # Initialize to empty string
+        suffix = ""  # Initialize to empty string
 
         if enum_prefix == true
           prefix = "#{name}_"

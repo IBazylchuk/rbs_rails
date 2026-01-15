@@ -61,6 +61,9 @@ module RbsRails
         enum_prefix = options[:_prefix] || options[:prefix]
         enum_suffix = options[:_suffix] || options[:suffix]
 
+        prefix = ""  # Initialize to empty string
+        suffix = ""  # Initialize to empty string
+
         if enum_prefix == true
           prefix = "#{name}_"
         elsif enum_prefix
